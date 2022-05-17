@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const res = require('express/lib/response');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -20,6 +21,7 @@ async function run() {
         await client.connect();
         const serviceCollection = client.db('doctors_portal').collection('services');
         const bookingCollection = client.db('doctors_portal').collection('bookings');
+        const userCollection = client.db('doctors_portal').collection('users');
 
         app.get('/service', async (req, res) => {
             const query = {};
@@ -27,6 +29,18 @@ async function run() {
             const services = await cursor.toArray();
             res.send(services);
         });
+
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
 
         // This is not the proper way to query
         app.get('/available', async (req, res) => {
@@ -59,6 +73,7 @@ async function run() {
         * app.get('/booking/:id') // get a specific booking
         * app.post('/booking') // add a new booking.
         * app.patch('/booking/:id') // update a specific booking
+        * app.put('/booking/:id') // upsart = update (if exist) or insert (if doens't exist)
         * app.delete('/booking/:id') // delete a specific booking
         * */
 
