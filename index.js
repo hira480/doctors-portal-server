@@ -69,20 +69,16 @@ async function run() {
             const user = await userCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin });
-        })
+        });
 
         app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
             const email = req.params.email;
-
-
             const filter = { email: email };
             const updateDoc = {
                 $set: { role: 'admin' },
             };
             const result = await userCollection.updateOne(filter, updateDoc);
             res.send(result);
-
-
 
         });
 
@@ -99,7 +95,7 @@ async function run() {
             res.send({ result, token });
         });
 
-        // This is not the proper way to query
+        // This is not the proper way to querye
         app.get('/available', async (req, res) => {
             const date = req.query.date;
 
