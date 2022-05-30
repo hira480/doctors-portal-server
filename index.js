@@ -47,10 +47,21 @@ function sendAppointmentEmail(booking) {
 
     const email = {
         from: 'myemail@example.com',
-        to: 'hiramannan8@gmail.com',
-        subject: 'Hey you, awesome!',
-        text: 'Mailgun rocks, pow pow!',
-        html: '<b>Wow Big powerful letters</b>',
+        to: patient,
+        subject: `Your Appointment for ${treatment} is on ${date} at ${slot} is confirmed`,
+        text: `Your Appointment for ${treatment} is on ${date} at ${slot} is confirmed`,
+        html: `
+        <div>
+        <p> Hello ${patientName}, </p>
+        <h3>Your Appointment for ${treatment} is confirmed</h3>
+        <p>Looking forward to seeing you on ${date} at ${slot}.</p>
+        
+        <h3>Our Address</h3>
+        <p>Andor Killa Bandorban</p>
+        <p>Bangladesh</p>
+        <a href="https://web.programming-hero.com/">unsubscribe</a>
+      </div>
+        `,
     };
     nodemailerMailgun.sendMail(email, (err, info) => {
         if (err) {
