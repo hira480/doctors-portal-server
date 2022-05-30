@@ -3,6 +3,8 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const nodemailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
@@ -29,6 +31,34 @@ function verifyJWT(req, res, next) {
         }
         req.decoded = decoded;
         next();
+    });
+}
+
+const auth = {
+    auth: {
+        api_key: process.env.MAILGUN_API_KEY,
+        domain: 'sandbox8a5919035d1141d59346b44b72733456.mailgun.org'
+    }
+};
+const nodemailerMailgun = nodemailer.createTransport(mg(auth));
+
+function sendAppointmentEmail(booking) {
+    const { patient, patientName, treatment, date, slot } = booking;
+
+    const email = {
+        from: 'myemail@example.com',
+        to: 'hiramannan8@gmail.com',
+        subject: 'Hey you, awesome!',
+        text: 'Mailgun rocks, pow pow!',
+        html: '<b>Wow Big powerful letters</b>',
+    };
+    nodemailerMailgun.sendMail(email, (err, info) => {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(info);
+        }
     });
 }
 
@@ -174,6 +204,7 @@ async function run() {
                 return res.send({ success: false, booking: exists });
             }
             const result = await bookingCollection.insertOne(booking);
+            sendAppointmentEmail(booking);
             return res.send({ success: true, result });
         });
 
